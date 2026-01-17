@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from datetime import date
 from auth import authenticate, User
@@ -16,13 +16,20 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User(user_id)
 
-@app.before_first_request
-def init_storage():
-    # Création automatique des CSV si absents
+# --- Initialisation compatible Flask 3.x ---
+def ensure_files():
+    """Créer les CSV s’ils n’existent pas"""
     if not USERS_FILE.exists():
         USERS_FILE.write_text("username,password_hash\n")
     if not SCORES_FILE.exists():
         SCORES_FILE.write_text("date,username,attempts,points\n")
+
+@app.before_request
+def init_storage():
+    if not getattr(g, 'initialized', False):
+        ensure_files()
+        g.initialized = True
+# ------------------------------------------
 
 @app.route("/", methods=["GET", "POST"])
 @login_required
