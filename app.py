@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from datetime import date
 from auth import authenticate, User
+from routes.profile import profile_bp
+from routes.admin import admin_bp
 from services.scores import upsert_score, monthly_leaderboard, daily_progress
 from config import SCORES_FILE, USERS_FILE
 
@@ -11,6 +13,10 @@ app.secret_key = "{{YOUR_SECRET_KEY}}"  # Render va le remplacer automatiquement
 login_manager = LoginManager()
 login_manager.login_view = "login"
 login_manager.init_app(app)
+
+# --- Register blueprints ---
+app.register_blueprint(profile_bp)
+app.register_blueprint(admin_bp)
 
 @login_manager.user_loader
 def load_user(user_id):
