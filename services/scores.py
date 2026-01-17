@@ -16,7 +16,7 @@ def load_scores():
     return df
 
 def score_from_attempts(attempts):
-    mapping = {1: 10, 2: 8, 3: 6, 4: 4, 5: 2}
+    mapping = {1: 60, 2: 50, 3: 40, 4: 30, 5: 20, 6: 10}
     return mapping.get(attempts, 0)
 
 def upsert_score(username, attempts):
