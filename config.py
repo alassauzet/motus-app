@@ -1,6 +1,7 @@
 from pathlib import Path
 
-DATA_DIR = Path("/var/data")
+# Version Free Plan : CSV dans /tmp (données volatiles)
+DATA_DIR = Path("/tmp/motus_data")
 DATA_DIR.mkdir(exist_ok=True)
 
 USERS_FILE = DATA_DIR / "users.csv"
