@@ -1,34 +1,225 @@
-<h2>Mot du jour – {{ today }}</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mot du jour – Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<form method="post">
-  <label>Nombre d’essais</label>
-  <input type="number" name="attempts" min="1" max="6" required>
-  <button>Valider</button>
-</form>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 
-<h3>Classement du mois</h3>
-<ul>
-  {% for user, points in leaderboard.items() %}
-    <li>{{ loop.index }} – {{ user }} : {{ points }} pts</li>
-  {% endfor %}
-</ul>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<h3>Évolution cumulée</h3>
-<canvas id="progressChart"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #020617;
+            --accent: #6366f1;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --success: #22c55e;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1e293b, var(--bg));
+            color: var(--text);
+        }
+
+        header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header img {
+            height: 36px;
+        }
+
+        header a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 1100px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 1.2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        /* --- Score form --- */
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        select, button {
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+        }
+
+        select {
+            flex: 1;
+            background: #020617;
+            color: var(--text);
+            border: 1px solid #1e293b;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        /* --- Leaderboard --- */
+        .leaderboard {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .leaderboard li:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard span {
+            font-size: 0.9rem;
+        }
+
+        /* --- Chart --- */
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        /* --- Desktop layout --- */
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+            }
+
+            .full {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</header>
+
+<div class="container">
+
+    <!-- Saisie du score -->
+    <div class="card">
+        <h2>Score du jour – {{ today.strftime("%d/%m") }}</h2>
+        <form method="post">
+            <select name="attempts" required>
+                <option value="">Essais</option>
+                <option value="1">1 essai</option>
+                <option value="2">2 essais</option>
+                <option value="3">3 essais</option>
+                <option value="4">4 essais</option>
+                <option value="5">5 essais</option>
+                <option value="6">Échec</option>
+            </select>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+
+    <!-- Classement -->
+    <div class="card">
+        <h2>Classement du mois</h2>
+        <ul class="leaderboard">
+            {% for user, points in leaderboard.items() %}
+            <li>
+                <span>{{ loop.index }}. {{ user }}</span>
+                <span>{{ points }} pts</span>
+            </li>
+            {% else %}
+            <li><span>Aucun score pour le moment</span></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Graphique -->
+    <div class="card full">
+        <h2>Progression</h2>
+        <canvas id="progressChart"></canvas>
+    </div>
+
+</div>
+
 <script>
-const ctx = document.getElementById('progressChart');
-new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: {{ labels|tojson }},
-    datasets: [{
-      label: 'Score cumulé',
-      data: {{ values|tojson }},
-      tension: 0.2
-    }]
-  }
-});
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|tojson }},
+            datasets: [{
+                label: 'Points cumulés',
+                data: {{ values|tojson }},
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    ticks: { color: '#94a3b8' }
+                }
+            }
+        }
+    });
 </script>
 
-<a href="/logout">Déconnexion</a>
+</body>
+</html>
