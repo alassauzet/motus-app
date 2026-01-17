@@ -289,7 +289,8 @@
         {% if current_user.is_authenticated %}
             <a href="{{ url_for('profile.change_password') }}">Changer mot de passe</a>
             {% if current_user.id == "admin" %}
-                <a href="{{ url_for('admin.manage_users') }}">Gestion utilisateurs</a>
+                <a href="{{ url_for('admin.manage_users') }}">Utilisateurs</a>
+                <a href="{{ url_for('admin_scores.manage_scores') }}">Scores</a>
             {% endif %}
             <a href="{{ url_for('logout') }}">Déconnexion</a>
         {% endif %}
