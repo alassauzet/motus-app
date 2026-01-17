@@ -56,6 +56,7 @@ def dashboard():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    error = None
     if request.method == "POST":
         user = authenticate(
             request.form["username"],
@@ -64,7 +65,10 @@ def login():
         if user:
             login_user(user)
             return redirect(url_for("dashboard"))
-    return render_template("login.html")
+        else:
+            error = "Identifiants incorrects"
+
+    return render_template("login.html", error=error)
 
 @app.route("/logout")
 @login_required
