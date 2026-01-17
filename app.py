@@ -1,11 +1,14 @@
+import locale
+from datetime import date
+
 from flask import Flask, render_template, request, redirect, url_for, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from datetime import date
+
 from auth import authenticate, User
-from routes.profile import profile_bp
-from routes.admin import admin_bp
-from services.scores import upsert_score, monthly_leaderboard, daily_progress
 from config import SCORES_FILE, USERS_FILE
+from routes.admin import admin_bp
+from routes.profile import profile_bp
+from services.scores import upsert_score, monthly_leaderboard, daily_progress_all
 
 app = Flask(__name__)
 app.secret_key = "{{YOUR_SECRET_KEY}}"  # Render va le remplacer automatiquement
@@ -18,9 +21,13 @@ login_manager.init_app(app)
 app.register_blueprint(profile_bp)
 app.register_blueprint(admin_bp)
 
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
+
 
 # --- Initialisation compatible Flask 3.x ---
 def ensure_files():
@@ -30,11 +37,14 @@ def ensure_files():
     if not SCORES_FILE.exists():
         SCORES_FILE.write_text("date,username,attempts,points\n")
 
+
 @app.before_request
 def init_storage():
     if not getattr(g, 'initialized', False):
         ensure_files()
         g.initialized = True
+
+
 # ------------------------------------------
 
 @app.route("/", methods=["GET", "POST"])
@@ -46,19 +56,35 @@ def dashboard():
         return redirect(url_for("dashboard"))
 
     today = date.today()
+    formatted_date = today.strftime("%d %B %Y")
     leaderboard = monthly_leaderboard(today.year, today.month)
-    progress = daily_progress(current_user.id, today.year, today.month)
+    progress = daily_progress_all(today.year, today.month)
 
-    labels = [d.strftime("%d/%m") for d in progress.index]
-    values = [int(v) for v in progress.values]  # <-- conversion ici
+    labels = [d.strftime('%d/%m') for d in progress.index]
+
+    total_users = len(progress.columns)
+
+    datasets = []
+    for i, user in enumerate(progress.columns):
+        # Couleur unique par utilisateur
+        hue = int(i * 360 / total_users)  # répartir les teintes sur le cercle HSL
+        color = f"hsl({hue}, 70%, 60%)"
+        datasets.append({
+            "label": user,
+            "data": progress[user].tolist(),
+            "borderColor": color,
+            "backgroundColor": "transparent",  # pas de remplissage
+            "tension": 0.3
+        })
 
     return render_template(
         "dashboard.html",
-        today=today,
+        today=formatted_date,
         leaderboard=leaderboard,
         labels=labels,
-        values=values
+        datasets=datasets
     )
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -76,11 +102,13 @@ def login():
 
     return render_template("login.html", error=error)
 
+
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     app.run()

@@ -1,59 +1,391 @@
-{% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mot du jour – Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block content %}
-<div class="card">
-    <h1>Bonjour {{ current_user.id }} !</h1>
-    <p>Date du jour : {{ today.strftime('%d/%m/%Y') }}</p>
-</div>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="card">
-    <h2>Ajouter vos points du jour</h2>
-    <form method="post" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <input type="number" name="attempts" min="0" placeholder="Nombre d'essais" required style="flex:1;">
-        <button type="submit">Soumettre</button>
-    </form>
-</div>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #020617;
+            --accent: #6366f1;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
 
-<div class="card">
-    <h2>Classement du mois</h2>
-    <table>
-        <thead>
-            <tr><th>#</th><th>Utilisateur</th><th>Points</th></tr>
-        </thead>
-        <tbody>
-            {% for row in leaderboard %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ row.username }}</td>
-                <td>{{ row.points }}</td>
-            </tr>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1e293b, var(--bg));
+            color: var(--text);
+        }
+
+        header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header img {
+            height: 36px;
+        }
+
+        header a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 1100px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 1.2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        select, button {
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+        }
+
+        select {
+            flex: 1;
+            background: #020617;
+            color: var(--text);
+            border: 1px solid #1e293b;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        .leaderboard {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .leaderboard li:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard span {
+            font-size: 0.9rem;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .full {
+            grid-column: span 2;
+        }
+
+        /* Flash messages */
+        .flash-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+
+        .flash {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .flash.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .flash.success {
+            background: var(--success);
+            color: #0f172a;
+        }
+
+        .flash.error {
+            background: var(--error);
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* desktop : 2 colonnes */
+            gap: 1rem;
+        }
+
+        .full {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                grid-template-columns: 1fr; /* mobile : 1 colonne */
+            }
+
+            .score-card {
+                order: 1;
+            }
+
+            .leaderboard-card {
+                order: 2;
+            }
+
+            .full {
+                order: 3;
+                grid-column: span 1;
+            }
+        }
+
+        .leaderboard {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .leaderboard li:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .username {
+            font-weight: 600;
+        }
+
+        /* Badges pour les 3 premiers */
+        .badge {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .gold {
+            background: #facc15;
+            color: #020617;
+        }
+
+        /* 🥇 */
+        .silver {
+            background: #e5e7eb;
+            color: #020617;
+        }
+
+        /* 🥈 */
+        .bronze {
+            background: #ea580c;
+            color: white;
+        }
+
+        /* 🥉 */
+
+        /* Avatar pour les autres utilisateurs */
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <div>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile.change_password') }}">Changer mot de passe</a>
+            {% if current_user.id == "admin" %}
+                <a href="{{ url_for('admin.manage_users') }}">Gestion utilisateurs</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}">Déconnexion</a>
+        {% endif %}
+    </div>
+</header>
+
+<!-- Flash messages -->
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="flash {{ category }}">{{ msg }}</div>
             {% endfor %}
-        </tbody>
-    </table>
+        {% endif %}
+    {% endwith %}
 </div>
 
-<div class="card">
-    <h2>Évolution quotidienne</h2>
-    <canvas id="chart" style="width:100%; height:300px;"></canvas>
+<div class="container">
+    <!-- Saisie du score -->
+    <div class="card score-card">
+        <h2>Score du jour – {{ today }}</h2>
+        <form method="post">
+            <select name="attempts" required
+                    oninvalid="this.setCustomValidity('Veuillez sélectionner un nombre d\'essais')"
+                    oninput="this.setCustomValidity('')">
+                <option value="">Nombre d'essais</option>
+                <option value="1">1 essai</option>
+                <option value="2">2 essais</option>
+                <option value="3">3 essais</option>
+                <option value="4">4 essais</option>
+                <option value="5">5 essais</option>
+                <option value="6">6 essais</option>
+                <option value="7">Échec</option>
+            </select>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+
+    <!-- Classement -->
+    <div class="card leaderboard-card">
+        <h2>Classement du mois</h2>
+        <ul class="leaderboard">
+            {% for user, points in leaderboard.items() %}
+                <li>
+                    <div class="user-info">
+                        <!-- Badge pour les 3 premiers -->
+                        {% if loop.index == 1 %}
+                            <span class="badge gold">🏆</span>
+                        {% elif loop.index == 2 %}
+                            <span class="badge silver">🥈</span>
+                        {% elif loop.index == 3 %}
+                            <span class="badge bronze">🥉</span>
+                        {% else %}
+                            <span class="avatar">{{ user[0]|upper }}</span>
+                        {% endif %}
+                        <span class="username">{{ user }}</span>
+                    </div>
+                    <span class="points">{{ points }} ⚡</span>
+                </li>
+            {% else %}
+                <li><span>Aucun score pour le moment</span></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+    <!-- Graphique -->
+    <div class="card full">
+        <h2>Progression</h2>
+        <canvas id="progressChart"></canvas>
+    </div>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('chart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ labels|tojson }},
-        datasets: [{
-            label: 'Points',
-            data: {{ values|tojson }},
-            borderColor: '#6366f1',
-            backgroundColor: 'rgba(99,102,241,0.2)',
-            tension: 0.3
-        }]
-    },
-    options: { responsive:true, scales:{ y:{ beginAtZero:true } } }
-});
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|tojson }},
+            datasets: {{ datasets|tojson }}
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {display: true, position: 'bottom'}
+            },
+            scales: {
+                x: {ticks: {color: '#94a3b8'}},
+                y: {ticks: {color: '#94a3b8'}, beginAtZero: true}
+            }
+        }
+    });
 </script>
-{% endblock %}
+
+
+</body>
+</html>

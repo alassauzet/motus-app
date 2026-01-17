@@ -1,60 +1,68 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Mot du jour</title>
-<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
-<style>
-body {
-    background:#0f172a;
-    color:#e5e7eb;
-    font-family:system-ui;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
-}
-.card {
-    background:#020617;
-    padding:2rem;
-    border-radius:12px;
-    width:90%;
-    max-width:400px;
-    box-sizing:border-box;
-    text-align:center;
-}
-input, button {
-    width:100%;
-    padding:0.5rem;
-    margin:0.5rem 0;
-    border-radius:6px;
-    border:none;
-    box-sizing:border-box;
-}
-button {
-    background:#6366f1;
-    color:white;
-    cursor:pointer;
-    font-weight:bold;
-}
-.error {
-    background:#ef4444;
-    padding:0.5rem;
-    border-radius:6px;
-    margin-bottom:1rem;
-}
-.logo {
-    display:block;
-    margin:0 auto 1rem;
-    width:80px;
-    height:auto;
-}
-@media (max-width:480px){
-    .card { padding:1rem; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mot du jour</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+    <style>
+        body {
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: system-ui;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: #020617;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #ef4444;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1rem;
+            width: 80px;
+            height: auto;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="card">
@@ -64,7 +72,7 @@ button {
     <h2>Connexion</h2>
 
     {% if error %}
-    <div class="error">{{ error }}</div>
+        <div class="error">{{ error }}</div>
     {% endif %}
 
     <form method="post">
