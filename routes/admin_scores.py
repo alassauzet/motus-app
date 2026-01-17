@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 import pandas as pd
 
 from config import SCORES_FILE
-from scores import load_scores, score_from_attempts, LOCK
+from services.scores import load_scores, score_from_attempts, LOCK
 
 admin_scores_bp = Blueprint("admin_scores", __name__)
 
