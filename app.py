@@ -44,7 +44,7 @@ def dashboard():
     progress = daily_progress(current_user.id, today.year, today.month)
 
     labels = [d.strftime("%d/%m") for d in progress.index]
-    values = list(progress.values)
+    values = [int(v) for v in progress.values]  # <-- conversion ici
 
     return render_template(
         "dashboard.html",
