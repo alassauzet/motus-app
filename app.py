@@ -7,6 +7,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from auth import authenticate, User
 from config import SCORES_FILE, USERS_FILE
 from routes.admin import admin_bp
+from routes.admin_scores import admin_scores_bp
 from routes.profile import profile_bp
 from services.scores import upsert_score, monthly_leaderboard, daily_progress_all
 
@@ -20,6 +21,7 @@ login_manager.init_app(app)
 # --- Register blueprints ---
 app.register_blueprint(profile_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(admin_scores_bp)
 
 try:
     locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
