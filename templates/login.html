@@ -2,54 +2,88 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Login – Mot du jour</title>
+    <title>Mot du jour – Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
     <style>
+        :root {
+            --bg: #0f172a;
+            --card: #020617;
+            --accent: #6366f1;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --error: #ef4444;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1e293b, var(--bg));
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--text);
         }
 
         .login-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
+            background: var(--card);
+            padding: 2.2rem;
+            border-radius: 14px;
             width: 100%;
             max-width: 360px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        .login-card h1 {
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1rem;
+            width: 64px;
+            height: 64px;
+        }
+
+        h1 {
             text-align: center;
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-            color: #555;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--muted);
         }
 
         input {
             width: 100%;
             padding: 0.6rem 0.7rem;
             margin-bottom: 1rem;
-            border-radius: 6px;
-            border: 1px solid #ccc;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            background: #020617;
+            color: var(--text);
             font-size: 1rem;
         }
 
         input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent);
         }
 
         button {
@@ -57,31 +91,58 @@
             padding: 0.7rem;
             font-size: 1rem;
             border: none;
-            border-radius: 6px;
-            background: #667eea;
+            border-radius: 8px;
+            background: var(--accent);
             color: white;
             cursor: pointer;
+            transition: background 0.2s ease;
         }
 
         button:hover {
-            background: #5a67d8;
+            background: #4f46e5;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
         }
 
         .hint {
-            margin-top: 1rem;
+            margin-top: 1.2rem;
             text-align: center;
-            font-size: 0.85rem;
-            color: #777;
+            font-size: 0.8rem;
+            color: var(--muted);
         }
     </style>
 </head>
 
 <body>
     <form class="login-card" method="post">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+
         <h1>Mot du jour</h1>
 
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
         <label for="username">Utilisateur</label>
-        <input id="username" name="username" required>
+        <input id="username" name="username" required autofocus>
 
         <label for="password">Mot de passe</label>
         <input id="password" type="password" name="password" required>
@@ -89,7 +150,7 @@
         <button type="submit">Se connecter</button>
 
         <div class="hint">
-            Prototype – login <strong>admin / admin</strong>
+            Prototype – admin / admin
         </div>
     </form>
 </body>
