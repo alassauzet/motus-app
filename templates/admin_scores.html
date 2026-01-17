@@ -93,7 +93,6 @@
 
     <!-- Toolbar copy -->
     <div class="toolbar">
-        <button class="btn-copy" onclick="copyTable()">Copier le tableau</button>
         <button class="btn-copy" onclick="copyCSV()">Copier en CSV</button>
     </div>
 
@@ -187,13 +186,17 @@
     }
 
     function copyCSV() {
-        const rows = document.querySelectorAll("#scores-table tr");
-        const csv = Array.from(rows).map(row =>
-            Array.from(row.children)
-                .slice(0, 4)
-                .map(cell => `"${cell.innerText.trim()}"`)
-                .join(",")
-        ).join("\n");
+        const rows = document.querySelectorAll("#scores-table tbody tr");
+        let csv = "date,username,attempts,points\n";
+
+    rows.forEach(row => {
+        const date = row.querySelector('input[name="date"]').value;
+        const username = row.children[1].innerText.trim();
+        const attempts = row.querySelector('input[name="attempts"]').value;
+        const points = row.children[3].innerText.trim();
+
+        csv += `${date},${username},${attempts},${points}\n`;
+    });
         copyToClipboard(csv);
     }
 </script>
