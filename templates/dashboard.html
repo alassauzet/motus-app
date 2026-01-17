@@ -1,0 +1,34 @@
+<h2>Mot du jour – {{ today }}</h2>
+
+<form method="post">
+  <label>Nombre d’essais</label>
+  <input type="number" name="attempts" min="1" max="6" required>
+  <button>Valider</button>
+</form>
+
+<h3>Classement du mois</h3>
+<ul>
+  {% for user, points in leaderboard.items() %}
+    <li>{{ loop.index }} – {{ user }} : {{ points }} pts</li>
+  {% endfor %}
+</ul>
+
+<h3>Évolution cumulée</h3>
+<canvas id="progressChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('progressChart');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: {{ labels|tojson }},
+    datasets: [{
+      label: 'Score cumulé',
+      data: {{ values|tojson }},
+      tension: 0.2
+    }]
+  }
+});
+</script>
+
+<a href="/logout">Déconnexion</a>
