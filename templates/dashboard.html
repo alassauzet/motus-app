@@ -22,9 +22,9 @@
             <tr><th>#</th><th>Utilisateur</th><th>Points</th></tr>
         </thead>
         <tbody>
-            {% for i, row in enumerate(leaderboard) %}
+            {% for row in leaderboard %}
             <tr>
-                <td>{{ i+1 }}</td>
+                <td>{{ loop.index }}</td>
                 <td>{{ row.username }}</td>
                 <td>{{ row.points }}</td>
             </tr>
