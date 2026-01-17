@@ -21,7 +21,10 @@ login_manager.init_app(app)
 app.register_blueprint(profile_bp)
 app.register_blueprint(admin_bp)
 
-locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+try:
+    locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, '')  # utilise la locale par défaut du système
 
 
 @login_manager.user_loader
