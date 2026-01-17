@@ -75,6 +75,7 @@ def dashboard():
         datasets.append({
             "label": user,
             "data": progress[user].tolist(),
+            "stepped": true,
             "borderColor": color,
             "backgroundColor": "transparent",  # pas de remplissage
             "tension": 0.3
