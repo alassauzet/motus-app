@@ -1,15 +1,19 @@
 import pandas as pd
 from pathlib import Path
 from filelock import FileLock
-from datetime import date, timedelta
+from datetime import date
 from config import SCORES_FILE
 
 LOCK = FileLock(str(SCORES_FILE) + ".lock")
 
 def load_scores():
-    if not SCORES_FILE.exists():
+    """Charge le CSV scores et convertit la colonne date en datetime"""
+    if not SCORES_FILE.exists() or SCORES_FILE.stat().st_size == 0:
         return pd.DataFrame(columns=["date", "username", "attempts", "points"])
-    return pd.read_csv(SCORES_FILE, parse_dates=["date"])
+    
+    df = pd.read_csv(SCORES_FILE)
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    return df
 
 def score_from_attempts(attempts):
     mapping = {1: 10, 2: 8, 3: 6, 4: 4, 5: 2}
@@ -34,18 +38,26 @@ def upsert_score(username, attempts):
                     "attempts": attempts,
                     "points": points
                 }])
-            ])
+            ], ignore_index=True)
         df.to_csv(SCORES_FILE, index=False)
 
 def monthly_leaderboard(year, month):
     df = load_scores()
-    df = df[(df.date.dt.year == year) & (df.date.dt.month == month)]
+    if df.empty:
+        return pd.Series(dtype=int)
+    df = df[(df['date'].dt.year == year) & (df['date'].dt.month == month)]
+    if df.empty:
+        return pd.Series(dtype=int)
     return df.groupby("username")["points"].sum().sort_values(ascending=False)
 
 def daily_progress(username, year, month):
     df = load_scores()
+    if df.empty:
+        return pd.Series(dtype=int)
     df = df[(df.username == username) &
-            (df.date.dt.year == year) &
-            (df.date.dt.month == month)]
+            (df['date'].dt.year == year) &
+            (df['date'].dt.month == month)]
+    if df.empty:
+        return pd.Series(dtype=int)
     daily = df.groupby("date")["points"].sum().sort_index().cumsum()
     return daily
