@@ -1,5 +1,6 @@
 import locale
 from datetime import date
+from babel.dates import format_date
 
 from flask import Flask, render_template, request, redirect, url_for, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -62,7 +63,8 @@ def dashboard():
         return redirect(url_for("dashboard"))
 
     today = date.today()
-    formatted_date = today.strftime("%d %B %Y")
+    # formatted_date = today.strftime("%d %B %Y")
+    formatted_date = format_date(today, format="d MMMM y", locale="fr_FR")
     leaderboard = monthly_leaderboard(today.year, today.month)
     progress = daily_progress_all(today.year, today.month)
 
