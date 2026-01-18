@@ -1,7 +1,8 @@
 from datetime import datetime
+
+import pandas as pd
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-import pandas as pd
 
 from config import SCORES_FILE
 from services.scores import load_scores, score_from_attempts, LOCK
@@ -39,12 +40,13 @@ def manage_scores():
             # ✏️ Modifier
             elif action == "edit":
                 idx = int(request.form["index"])
+                # Récupérer les valeurs du formulaire
+                date = pd.to_datetime(request.form["date"])
                 attempts = int(request.form["attempts"])
-                df.loc[idx, ["date", "attempts", "points"]] = [
-                    pd.to_datetime(request.form["date"]),
-                    attempts,
-                    score_from_attempts(attempts)
-                ]
+                # Récupérer les points depuis le formulaire (si vide, fallback au calcul automatique)
+                points_str = request.form.get("points", "")
+                points = int(points_str) if points_str.isdigit() else score_from_attempts(attempts)
+                df.loc[idx, ["date", "attempts", "points"]] = [date, attempts, points]
                 flash("Score modifié", "success")
 
             # 🗑️ Supprimer

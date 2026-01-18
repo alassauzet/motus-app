@@ -5,6 +5,8 @@
     <title>Admin – Édition des scores</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+
     <style>
         body {
             background: #0f172a;
@@ -65,10 +67,21 @@
             color: white;
         }
 
-        .btn-add { background: #22c55e; }
-        .btn-edit { background: #3b82f6; }
-        .btn-delete { background: #ef4444; }
-        .btn-copy { background: #6366f1; }
+        .btn-add {
+            background: #22c55e;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+        }
+
+        .btn-copy {
+            background: #6366f1;
+        }
 
         .toolbar {
             display: flex;
@@ -79,6 +92,20 @@
     </style>
 </head>
 
+<div id="flash-message" style="
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: #22c55e;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 1000;
+    font-weight: bold;
+"></div>
+
 <body>
 
 <header>
@@ -88,7 +115,7 @@
         <a href="{{ url_for('logout') }}">Déconnexion</a>
     </div>
 </header>
-    
+
 <div class="container">
     <h1>Administration des scores</h1>
 
@@ -120,51 +147,63 @@
         </thead>
         <tbody>
         {% for s in scores %}
-        <tr>
-            <form method="POST">
-                <td>
-                    <input type="date" name="date"
-                           value="{{ s.date.strftime('%Y-%m-%d') }}">
-                </td>
-                <td>{{ s.username }}</td>
-                <td>
-                    <input type="number" name="attempts"
-                           value="{{ s.attempts }}">
-                </td>
-                <td>{{ s.points }}</td>
-                <td>
-                    <input type="hidden" name="index" value="{{ s.index }}">
-                    <button class="btn-edit" name="action" value="edit">💾</button>
-                    <button class="btn-delete"
-                            name="action"
-                            value="delete"
-                            onclick="return confirm('Supprimer cette ligne ?')">
-                        🗑️
-                    </button>
-                    <button type="button"
-                            class="btn-copy"
-                            onclick="copyRow(this)">
-                        📋
-                    </button>
-                </td>
-            </form>
-        </tr>
+            <tr>
+                <form method="POST">
+                    <td>
+                        <input type="date" name="date"
+                               value="{{ s.date.strftime('%Y-%m-%d') }}">
+                    </td>
+                    <td>{{ s.username }}</td>
+                    <td>
+                        <input type="number" name="attempts"
+                               value="{{ s.attempts }}">
+                    </td>
+                    <td>
+                        <input type="number" name="points" value="{{ s.points }}" min="0">
+                    </td>
+                    <td>
+                        <input type="hidden" name="index" value="{{ s.index }}">
+                        <button class="btn-edit" name="action" value="edit">💾</button>
+                        <button class="btn-delete"
+                                name="action"
+                                value="delete"
+                                onclick="return confirm('Supprimer cette ligne ?')">
+                            🗑️
+                        </button>
+                        <button type="button"
+                                class="btn-copy"
+                                onclick="copyRow(this)">
+                            📋
+                        </button>
+                    </td>
+                </form>
+            </tr>
         {% else %}
-        <tr>
-            <td colspan="5">Aucun score</td>
-        </tr>
+            <tr>
+                <td colspan="5">Aucun score</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 
 <script>
+    function showFlash(message, duration = 2000) {
+        const flash = document.getElementById("flash-message");
+        flash.textContent = message;
+        flash.style.display = "block";
+        setTimeout(() => {
+            flash.style.display = "none";
+        }, duration);
+    }
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(
-            () => alert("Copié dans le presse-papiers"),
-            () => alert("Erreur lors de la copie")
+            () => showFlash("Copié dans le presse-papiers ✅"),
+            () => showFlash("Erreur lors de la copie ❌")
         );
     }
+
 
     function copyRow(btn) {
         const row = btn.closest("tr");
@@ -175,31 +214,33 @@
         copyToClipboard(values);
     }
 
-    function copyTable() {
-        const rows = document.querySelectorAll("#scores-table tr");
-        const text = Array.from(rows).map(row =>
-            Array.from(row.children)
-                .slice(0, 4)
-                .map(cell => cell.innerText.trim())
-                .join("\t")
-        ).join("\n");
-        copyToClipboard(text);
-    }
-
     function copyCSV() {
         const rows = document.querySelectorAll("#scores-table tbody tr");
-        let csv = "date,username,attempts,points\n";
+        const headers = ["date", "username", "attempts", "points"];
+        let csv = headers.join(",") + "\n";
 
-    rows.forEach(row => {
-        const date = row.querySelector('input[name="date"]').value;
-        const username = row.children[1].innerText.trim();
-        const attempts = row.querySelector('input[name="attempts"]').value;
-        const points = row.children[3].innerText.trim();
+        rows.forEach(row => {
+            const tds = row.querySelectorAll("td");
 
-        csv += `${date},${username},${attempts},${points}\n`;
-    });
+            // Lire la valeur des inputs si présents, sinon fallback au texte de la cellule
+            const getCellValue = (td, inputName) => {
+                const input = td.querySelector(`input[name="${inputName}"]`);
+                return input ? input.value.trim() : td.innerText.trim();
+            };
+
+            const rowValues = [
+                getCellValue(tds[0], "date"),
+                getCellValue(tds[1], null),       // username n’a pas d’input
+                getCellValue(tds[2], "attempts"),
+                getCellValue(tds[3], null)        // points n’a pas d’input
+            ];
+
+            csv += rowValues.join(",") + "\n";
+        });
+
         copyToClipboard(csv);
     }
+
 </script>
 
 </body>
