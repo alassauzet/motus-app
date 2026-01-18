@@ -34,6 +34,30 @@ def get_player_attempts(username, target_date=None):
     return None
 
 
+def monthly_games_played(target_date: date = None):
+    """
+    Retourne un dictionnaire {username: nombre de parties jouées} pour le mois de target_date.
+    Si target_date est None, utilise la date du jour.
+    """
+    if target_date is None:
+        target_date = date.today()
+
+    df = load_scores()  # ton DataFrame avec ['username', 'date', 'points']
+    if df.empty:
+        return {}
+
+    # Filtrer pour le mois et l'année de target_date
+    df = df[(df['date'].dt.year == target_date.year) &
+            (df['date'].dt.month == target_date.month)]
+    if df.empty:
+        return {}
+
+    # Grouper par utilisateur et compter le nombre de parties jouées
+    games_count = df.groupby("username").size().sort_values(ascending=False)
+
+    return games_count.to_dict()
+
+
 def upsert_score(username, attempts):
     today = pd.to_datetime(date.today())
     points = score_from_attempts(attempts)
@@ -100,3 +124,40 @@ def daily_progress_all(year, month):
     daily_df = daily_df.cumsum()
 
     return daily_df
+
+
+def compute_user_trends(progress_df: pd.DataFrame):
+    """
+    À partir d'un DataFrame cumulatif daily_progress_all(year, month),
+    renvoie un dict {username: 'up'|'down'|'same'|'new'} indiquant la tendance
+    par rapport au tour précédent.
+    """
+    if progress_df.empty or len(progress_df) < 2:
+        # Pas assez de données : tout reste stable
+        return {user: "same" for user in progress_df.columns}
+
+    today_scores = progress_df.iloc[-1]
+    yesterday_scores = progress_df.iloc[-2]
+
+    # Classements
+    today_ranking = today_scores.sort_values(ascending=False).index.tolist()
+    yesterday_ranking = yesterday_scores.sort_values(ascending=False).index.tolist()
+
+    today_positions = {user: i + 1 for i, user in enumerate(today_ranking)}
+    yesterday_positions = {user: i + 1 for i, user in enumerate(yesterday_ranking)}
+
+    user_trends = {}
+    for user in today_positions:
+        prev_pos = yesterday_positions.get(user)
+        curr_pos = today_positions[user]
+
+        if prev_pos is None:
+            user_trends[user] = "new"
+        elif curr_pos < prev_pos:
+            user_trends[user] = "up"
+        elif curr_pos > prev_pos:
+            user_trends[user] = "down"
+        else:
+            user_trends[user] = "same"
+
+    return user_trends
