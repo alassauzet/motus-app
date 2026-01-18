@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 
 import pandas as pd
@@ -8,6 +9,9 @@ from config import SCORES_FILE
 from services.scores import load_scores, score_from_attempts, LOCK
 
 admin_scores_bp = Blueprint("admin_scores", __name__)
+
+# Nombre de lignes par page
+ROWS_PER_PAGE = 10
 
 
 @admin_scores_bp.route("/admin/scores", methods=["GET", "POST"])
@@ -40,10 +44,8 @@ def manage_scores():
             # ✏️ Modifier
             elif action == "edit":
                 idx = int(request.form["index"])
-                # Récupérer les valeurs du formulaire
                 date = pd.to_datetime(request.form["date"])
                 attempts = int(request.form["attempts"])
-                # Récupérer les points depuis le formulaire (si vide, fallback au calcul automatique)
                 points_str = request.form.get("points", "")
                 points = int(points_str) if points_str.isdigit() else score_from_attempts(attempts)
                 df.loc[idx, ["date", "attempts", "points"]] = [date, attempts, points]
@@ -57,10 +59,23 @@ def manage_scores():
             df.to_csv(SCORES_FILE, index=False)
             return redirect(url_for("admin_scores.manage_scores"))
 
+    # Pagination GET
+    page = request.args.get("page", 1, type=int)
     df = df.reset_index()
+
+    # 🔹 Trier du plus récent au plus ancien
+    df.sort_values(by=["date", "username"], ascending=[False, True], inplace=True)
+
+    total_rows = len(df)
+    total_pages = math.ceil(total_rows / ROWS_PER_PAGE)
+    start = (page - 1) * ROWS_PER_PAGE
+    end = start + ROWS_PER_PAGE
+    df_page = df.iloc[start:end]
 
     return render_template(
         "admin_scores.html",
-        scores=df.to_dict(orient="records"),
-        today=datetime.today().strftime("%Y-%m-%d")
+        scores=df_page.to_dict(orient="records"),
+        today=datetime.today().strftime("%Y-%m-%d"),
+        page=page,
+        total_pages=total_pages
     )

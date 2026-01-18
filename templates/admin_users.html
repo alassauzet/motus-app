@@ -5,255 +5,248 @@
     <title>Admin – Gestion des utilisateurs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        :root {
-            --bg: #0f172a;
-            --card: #020617;
-            --accent: #6366f1;
-            --text: #e5e7eb;
-            --muted: #94a3b8;
-            --success: #22c55e;
-            --error: #ef4444;
-        }
-
         body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: radial-gradient(circle at top, #1e293b, var(--bg));
-            color: var(--text);
+            background: radial-gradient(circle at top, #1e293b, #020617);
+            color: #fff;
         }
 
-        header {
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        :root {
+            --bs-body-color: #ffffff;
+            --bs-heading-color: #ffffff;
+            --bs-secondary-color: #94a3b8;
+            --bs-primary: #6366f1;
         }
 
-        header img {
-            height: 36px;
-        }
-
-        header a {
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-left: 1rem;
-        }
-
-        .flash-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-width: 600px;
-            margin: 1rem auto;
-        }
-
-        .flash {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            font-weight: bold;
+        /* Cards */
+        .card {
+            background: #020617;
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, .5);
             opacity: 0;
             transform: translateY(-10px);
-            transition: opacity 0.3s, transform 0.3s;
+            transition: all 0.4s ease;
         }
 
-        .flash.visible {
+        .card.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .flash.success {
-            background: var(--success);
-            color: #0f172a;
-        }
-
-        .flash.error {
-            background: var(--error);
-            color: white;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 1rem;
-            display: grid;
-            gap: 1rem;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: 14px;
-            padding: 1.2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
         h2 {
-            margin-top: 0;
-            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
         }
 
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        button {
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.95rem;
-        }
-
-        input[type="text"],
-        input[type="password"] {
+        input.form-control {
             background: #020617;
-            color: var(--text);
+            color: #fff;
             border: 1px solid #1e293b;
+            height: calc(2.2rem + 2px);
         }
 
-        button {
-            background: var(--accent);
-            color: white;
-            cursor: pointer;
+        .btn-primary, .btn-reset, .btn-delete {
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        button:hover {
-            background: #4f46e5;
+        .btn-reset {
+            background: #f59e0b;
+            color: #fff;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        th, td {
-            padding: 0.5rem;
-            border-bottom: 1px solid #1e293b;
-            text-align: left;
-            vertical-align: middle;
+        .btn-reset:hover {
+            background: #d97706;
         }
 
         .btn-delete {
-            background: var(--error);
+            background: #ef4444;
+            color: #fff;
         }
 
         .btn-delete:hover {
             background: #dc2626;
         }
 
-        .btn-reset {
-            background: #f59e0b;
+        .flash-container {
+            max-width: 900px;
+            margin: 1rem auto;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
         }
 
-        .btn-reset:hover {
-            background: #d97706;
+        .flash-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.3rem 0.5rem;
+            border-bottom: 1px solid #1e293b;
+            vertical-align: middle;
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* Formulaire Ajouter utilisateur inline */
+        .add-user-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .add-user-form input {
+            flex: 1 1 auto;
+        }
+
+        /* Form ligne table inline */
+        .user-action-form {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .user-action-form input,
+        .user-action-form button {
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .add-user-form,
+            .user-action-form {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .user-action-form input,
+            .user-action-form button {
+                width: 100%; /* input et boutons prennent toute la largeur */
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-<header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-    <div>
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('logout') }}">Déconnexion</a>
+<!-- HEADER -->
+<nav class="navbar navbar-dark navbar-expand-lg bg-black bg-opacity-75 backdrop-blur sticky-top">
+    <div class="container-fluid">
+        <img src="{{ url_for('static', filename='logo.png') }}" height="36" alt="Logo">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
+            <ul class="navbar-nav gap-2">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('logout') }}">Déconnexion</a></li>
+            </ul>
+        </div>
     </div>
-</header>
+</nav>
 
-<!-- Flash messages -->
-<div class="flash-container">
+<!-- FLASH -->
+<div class="flash-container" id="flashContainer">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, msg in messages %}
-            <div class="flash {{ category }}">{{ msg }}</div>
+            <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show"
+                 role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         {% endfor %}
     {% endwith %}
 </div>
 
-<div class="container">
+<!-- MAIN -->
+<div class="main-container">
+    <div class="content-wrapper">
 
-    <!-- Ajout utilisateur -->
-    <div class="card">
-        <h2>Ajouter un utilisateur</h2>
-        <form method="POST">
-            <input type="hidden" name="action" value="add">
-            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-            <button type="submit">Ajouter</button>
-        </form>
-    </div>
+        <!-- Ajouter utilisateur inline -->
+        <div class="card w-100">
+            <h2>Ajouter un utilisateur</h2>
+            <form method="POST" class="add-user-form">
+                <input type="hidden" name="action" value="add">
+                <input type="text" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
+                <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </form>
+        </div>
 
-    <!-- Liste utilisateurs -->
-    <div class="card">
-        <h2>Liste des utilisateurs</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Reset mot de passe</th>
-                <th>Suppression</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for u in users %}
-            <tr>
-                <td>{{ u }}</td>
+        <!-- Liste utilisateurs compacte -->
+        <div class="card w-100">
+            <h2>Liste des utilisateurs</h2>
 
-                <!-- Reset password -->
-                <td>
-                    <form method="POST">
+            <div class="d-flex flex-column gap-2">
+                {% for u in users %}
+                    <form method="POST" class="user-action-form">
+                        <!-- Username -->
+                        <div class="fw-bold flex-shrink-0">{{ u }}</div>
+
+                        <!-- Reset mot de passe -->
                         <input type="hidden" name="action" value="reset_password">
                         <input type="hidden" name="username" value="{{ u }}">
-                        <input type="password"
-                               name="new_password"
-                               placeholder="Nouveau mot de passe"
-                               required>
-                        <button class="btn-reset"
+                        <input type="password" name="new_password" class="form-control form-control-sm flex-grow-1"
+                               placeholder="Nouveau mot de passe" required>
+
+                        <button class="btn btn-reset btn-sm flex-shrink-0"
                                 onclick="return confirm('Réinitialiser le mot de passe de {{ u }} ?')">
                             Reset
                         </button>
-                    </form>
-                </td>
 
-                <!-- Delete -->
-                <td>
-                    {% if u != "admin" %}
-                    <form method="POST">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="username" value="{{ u }}">
-                        <button class="btn-delete"
-                                onclick="return confirm('Supprimer {{ u }} ?')">
-                            Supprimer
-                        </button>
+                        <!-- Delete -->
+                        {% if u != "admin" %}
+                            <button class="btn btn-delete btn-sm flex-shrink-0"
+                                    onclick="return confirm('Supprimer {{ u }} ?')">
+                                Supprimer
+                            </button>
+                        {% endif %}
                     </form>
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="3">Aucun utilisateur</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                {% else %}
+                    <div>Aucun utilisateur</div>
+                {% endfor %}
+            </div>
+        </div>
+
+
     </div>
-
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".flash").forEach((flash, i) => {
-            setTimeout(() => flash.classList.add("visible"), i * 200);
-        });
+        document.querySelectorAll(".card").forEach((card, i) => setTimeout(() => card.classList.add("visible"), i * 150));
+        const flash = document.getElementById("flashContainer");
+        if (flash) setTimeout(() => flash.classList.add("visible"), 100);
     });
 </script>
 
