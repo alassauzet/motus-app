@@ -53,6 +53,10 @@ def init_storage():
 
 
 # ------------------------------------------
+@app.route("/health")
+def health():
+    return "ok", 200
+
 
 @app.route("/", methods=["GET", "POST"])
 @login_required
