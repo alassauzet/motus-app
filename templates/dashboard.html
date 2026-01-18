@@ -26,31 +26,110 @@
             color: var(--text);
         }
 
+        /* ================= HEADER ================= */
+
         header {
-            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
         }
 
         header img {
             height: 36px;
         }
 
+        .header-links {
+            display: flex;
+            gap: 1rem;
+        }
+
         header a {
             color: var(--muted);
             text-decoration: none;
             font-size: 0.9rem;
-            margin-left: 1rem;
         }
+
+        .burger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        /* ========== MOBILE MENU ========== */
+        @media (max-width: 768px) {
+            .burger {
+                display: block;
+            }
+
+            .header-links {
+                position: absolute;
+                top: 100%; /* juste sous le header */
+                right: 1rem;
+                left: 1rem;
+                display: none;
+                flex-direction: column;
+                background: var(--card);
+                padding: 1rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+                z-index: 100;
+            }
+
+            .header-links.show {
+                display: flex;
+            }
+        }
+
+        /* ================= LAYOUT ================= */
 
         .container {
             padding: 1rem;
             max-width: 1100px;
             margin: auto;
             display: grid;
-            grid-template-columns: 1fr;
             gap: 1rem;
+        }
+
+        /* Desktop */
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+            }
+
+            .full {
+                grid-column: span 2;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .score-card {
+                order: 1;
+            }
+
+            .leaderboard-card {
+                order: 2;
+            }
+
+            .full {
+                order: 3;
+                grid-column: auto;
+            }
         }
 
         .card {
@@ -75,10 +154,12 @@
             font-size: 1.1rem;
         }
 
+        /* ================= FORM ================= */
+
         form {
             display: flex;
-            flex-wrap: wrap;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         select, button {
@@ -105,103 +186,7 @@
             background: #4f46e5;
         }
 
-        .leaderboard {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .leaderboard li {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.4rem 0;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .leaderboard li:last-child {
-            border-bottom: none;
-        }
-
-        .leaderboard span {
-            font-size: 0.9rem;
-        }
-
-        canvas {
-            width: 100% !important;
-            height: auto !important;
-        }
-
-        .full {
-            grid-column: span 2;
-        }
-
-        /* Flash messages */
-        .flash-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-width: 600px;
-            margin: 1rem auto;
-        }
-
-        .flash {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            font-weight: bold;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .flash.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .flash.success {
-            background: var(--success);
-            color: #0f172a;
-        }
-
-        .flash.error {
-            background: var(--error);
-            color: white;
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: 1fr 2fr;
-            }
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr; /* desktop : 2 colonnes */
-            gap: 1rem;
-        }
-
-        .full {
-            grid-column: span 2;
-        }
-
-        @media (max-width: 767px) {
-            .container {
-                grid-template-columns: 1fr; /* mobile : 1 colonne */
-            }
-
-            .score-card {
-                order: 1;
-            }
-
-            .leaderboard-card {
-                order: 2;
-            }
-
-            .full {
-                order: 3;
-                grid-column: span 1;
-            }
-        }
+        /* ================= LEADERBOARD ================= */
 
         .leaderboard {
             list-style: none;
@@ -231,16 +216,15 @@
             font-weight: 600;
         }
 
-        /* Badges pour les 3 premiers */
-        .badge {
+        .badge, .avatar {
             width: 28px;
             height: 28px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            font-size: 1rem;
-            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .gold {
@@ -248,36 +232,51 @@
             color: #020617;
         }
 
-        /* 🥇 */
         .silver {
             background: #e5e7eb;
             color: #020617;
         }
 
-        /* 🥈 */
         .bronze {
             background: #ea580c;
             color: white;
         }
 
-        /* 🥉 */
-
-        /* Avatar pour les autres utilisateurs */
         .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #6366f1;
+            background: var(--accent);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.9rem;
         }
 
+        /* ================= FLASH ================= */
 
+        .flash-container {
+            max-width: 600px;
+            margin: 1rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .flash {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .flash.success {
+            background: var(--success);
+            color: #0f172a;
+        }
+
+        .flash.error {
+            background: var(--error);
+            color: white;
+        }
+
+        canvas {
+            width: 100% !important;
+        }
     </style>
 </head>
 
@@ -285,58 +284,49 @@
 
 <header>
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-    <div>
+    <button class="burger" onclick="toggleMenu()">☰</button>
+    <nav class="header-links" id="headerLinks">
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('profile.change_password') }}">Changer mot de passe</a>
+            <a href="{{ url_for('profile.change_password') }}">Mot de passe</a>
             {% if current_user.id == "admin" %}
                 <a href="{{ url_for('admin.manage_users') }}">Utilisateurs</a>
                 <a href="{{ url_for('admin_scores.manage_scores') }}">Scores</a>
             {% endif %}
             <a href="{{ url_for('logout') }}">Déconnexion</a>
         {% endif %}
-    </div>
+    </nav>
 </header>
 
-<!-- Flash messages -->
 <div class="flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, msg in messages %}
-                <div class="flash {{ category }}">{{ msg }}</div>
-            {% endfor %}
-        {% endif %}
+        {% for category, msg in messages %}
+            <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
     {% endwith %}
 </div>
 
 <div class="container">
-    <!-- Saisie du score -->
     <div class="card score-card">
         <h2>Score du jour – {{ today }}</h2>
         <form method="post">
-            <select name="attempts" required
-                    oninvalid="this.setCustomValidity('Veuillez sélectionner un nombre d\'essais')"
-                    oninput="this.setCustomValidity('')">
+            <select name="attempts" required>
                 <option value="">Nombre d'essais</option>
-                <option value="1">1 essai</option>
-                <option value="2">2 essais</option>
-                <option value="3">3 essais</option>
-                <option value="4">4 essais</option>
-                <option value="5">5 essais</option>
-                <option value="6">6 essais</option>
-                <option value="7">Échec</option>
+                {% for i in range(1, 8) %}
+                    <option value="{{ i }}" {% if player_attempts_today == i %}selected{% endif %}>
+                        {% if i == 7 %}Échec{% else %}{{ i }} essai{% if i > 1 %}s{% endif %}{% endif %}
+                    </option>
+                {% endfor %}
             </select>
             <button type="submit">Valider</button>
         </form>
     </div>
 
-    <!-- Classement -->
     <div class="card leaderboard-card">
         <h2>Classement du mois</h2>
         <ul class="leaderboard">
             {% for user, points in leaderboard.items() %}
                 <li>
                     <div class="user-info">
-                        <!-- Badge pour les 3 premiers -->
                         {% if loop.index == 1 %}
                             <span class="badge gold">🏆</span>
                         {% elif loop.index == 2 %}
@@ -348,26 +338,30 @@
                         {% endif %}
                         <span class="username">{{ user }}</span>
                     </div>
-                    <span class="points">{{ points }} ⚡</span>
+                    <span>{{ points }} ⚡</span>
                 </li>
             {% else %}
-                <li><span>Aucun score pour le moment</span></li>
+                <li>Aucun score pour le moment</li>
             {% endfor %}
         </ul>
     </div>
 
-
-    <!-- Graphique -->
     <div class="card full">
         <h2>Progression</h2>
-        <canvas id="progressChart"></canvas>
+        <canvas id="progressChart" style="width:100%; height:300px;"></canvas>
     </div>
 </div>
 
+<script>
+    function toggleMenu() {
+        document.getElementById('headerLinks').classList.toggle('show');
+    }
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('progressChart').getContext('2d');
+
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -376,17 +370,55 @@
         },
         options: {
             responsive: true,
+            interaction: {
+                mode: 'index',   // hover commun
+                intersect: false
+            },
             plugins: {
-                legend: {display: true, position: 'bottom'}
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    align: 'start',
+                    labels: {
+                        color: '#94a3b8',       // couleur du texte
+                        usePointStyle: true,    // cercle au lieu de carré
+                        pointStyle: 'circle',
+                        boxWidth: 12,           // largeur du cercle
+                        boxHeight: 12,
+                        padding: 15
+                    },
+                    onClick: (e, legendItem, legend) => {
+                        // Clique pour cacher/afficher la série
+                        const index = legendItem.datasetIndex;
+                        const ci = legend.chart;
+                        const meta = ci.getDatasetMeta(index);
+                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                        ci.update();
+                    }
+                },
+                tooltip: {mode: 'index', intersect: false}
             },
             scales: {
-                x: {ticks: {color: '#94a3b8'}},
-                y: {ticks: {color: '#94a3b8'}, beginAtZero: true}
+                x: {
+                    ticks: {color: '#94a3b8'},
+                    grid: {
+                        display: true,
+                        color: 'rgba(148, 163, 184, 0.2)',
+                        drawTicks: false
+                    }
+                },
+                y: {
+                    ticks: {color: '#94a3b8'},
+                    grid: {
+                        display: true,
+                        color: 'rgba(148, 163, 184, 0.2)',
+                        drawTicks: false
+                    }
+                }
             }
         }
     });
 </script>
-
 
 </body>
 </html>

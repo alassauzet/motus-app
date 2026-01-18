@@ -9,7 +9,7 @@ from config import SCORES_FILE, USERS_FILE
 from routes.admin import admin_bp
 from routes.admin_scores import admin_scores_bp
 from routes.profile import profile_bp
-from services.scores import upsert_score, monthly_leaderboard, daily_progress_all
+from services.scores import upsert_score, monthly_leaderboard, daily_progress_all, get_player_attempts
 
 app = Flask(__name__)
 app.secret_key = "{{YOUR_SECRET_KEY}}"  # Render va le remplacer automatiquement
@@ -77,18 +77,22 @@ def dashboard():
         datasets.append({
             "label": user,
             "data": progress[user].tolist(),
-            "stepped": "after",
             "borderColor": color,
             "backgroundColor": "transparent",  # pas de remplissage
             "borderWidth": 2
         })
+
+    # Récupérer les essais du joueur pour aujourd'hui
+    player_attempts_today = get_player_attempts(current_user.id, today)  # fonction à créer
+    print(player_attempts_today)
 
     return render_template(
         "dashboard.html",
         today=formatted_date,
         leaderboard=leaderboard,
         labels=labels,
-        datasets=datasets
+        datasets=datasets,
+        player_attempts_today=player_attempts_today
     )
 
 

@@ -23,6 +23,17 @@ def score_from_attempts(attempts):
     return mapping.get(attempts, 0)
 
 
+def get_player_attempts(username, target_date=None):
+    """Renvoie le nombre d'essais du joueur pour la date donnée (par défaut aujourd'hui)"""
+    if target_date is None:
+        target_date = pd.to_datetime(date.today())
+    df = load_scores()
+    mask = (df.username == username) & (df['date'].dt.date == target_date)
+    if mask.any():
+        return int(df.loc[mask, "attempts"].iloc[0])
+    return None
+
+
 def upsert_score(username, attempts):
     today = pd.to_datetime(date.today())
     points = score_from_attempts(attempts)
