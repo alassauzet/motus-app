@@ -50,13 +50,41 @@
 
 <div id="flash-message" class="flash-message"></div>
 
-<header class="d-flex justify-content-between align-items-center p-3 mb-4 border-bottom border-secondary">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" height="36">
-    <div>
-        <a href="{{ url_for('dashboard') }}" class="me-3">Dashboard</a>
-        <a href="{{ url_for('logout') }}">Déconnexion</a>
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-dark navbar-expand-lg sticky-top bg-black bg-opacity-75 backdrop-blur">
+    <div class="container-fluid">
+        <a href="{{ url_for('dashboard') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" height="36" alt="Logo">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
+            <ul class="navbar-nav gap-2">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile.change_password') }}">Mot de passe</a>
+                    </li>
+
+                    {% if current_user.id == "admin" %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.manage_users') }}">Utilisateurs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_scores.manage_scores') }}">Scores</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{{ url_for('logout') }}">Déconnexion</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-</header>
+</nav>
 
 <div class="container d-flex flex-column align-items-center">
 

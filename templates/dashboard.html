@@ -94,7 +94,9 @@
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar navbar-dark navbar-expand-lg sticky-top bg-black bg-opacity-75 backdrop-blur">
     <div class="container-fluid">
-        <img src="{{ url_for('static', filename='logo.png') }}" height="36" alt="Logo">
+        <a href="{{ url_for('dashboard') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" height="36" alt="Logo">
+        </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
             <span class="navbar-toggler-icon"></span>
