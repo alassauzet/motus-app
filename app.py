@@ -1,6 +1,6 @@
-import locale
 from datetime import date
 from babel.dates import format_date
+import os
 
 from flask import Flask, render_template, request, redirect, url_for, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -14,7 +14,7 @@ from services.scores import upsert_score, monthly_leaderboard, daily_progress_al
     monthly_games_played, compute_user_trends
 
 app = Flask(__name__)
-app.secret_key = "{{YOUR_SECRET_KEY}}"  # Render va le remplacer automatiquement
+app.secret_key = os.environ.get("SECRET_KEY", "dev-key")
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -24,12 +24,6 @@ login_manager.init_app(app)
 app.register_blueprint(profile_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(admin_scores_bp)
-
-try:
-    locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
-except locale.Error:
-    locale.setlocale(locale.LC_ALL, '')  # utilise la locale par défaut du système
-
 
 @login_manager.user_loader
 def load_user(user_id):
