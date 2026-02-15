@@ -41,13 +41,21 @@ def load_scores(year=None, month=None):
 
 def get_player_attempts(username, target_date=None):
     if target_date is None:
-        target_date = pd.to_datetime(date.today())
-    df = load_scores()
-    mask = (df.username == username) & (df['date'].dt.date == target_date)
-    if mask.any():
-        return int(df.loc[mask, "attempts"].iloc[0])
-    return 0
+        target_date = date.today()
 
+    res = (
+        supabase.table("scores")
+        .select("attempts")
+        .eq("username", username)
+        .eq("date", target_date.isoformat())
+        .limit(1)
+        .execute()
+    )
+
+    if res.data:
+        return res.data[0]["attempts"]
+
+    return None
 
 def monthly_games_played(target_date: date = None):
     if target_date is None:
