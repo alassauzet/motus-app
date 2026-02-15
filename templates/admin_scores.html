@@ -121,54 +121,55 @@
     <div class="table-responsive w-100">
         <table id="scores-table" class="table table-dark table-striped table-hover text-center align-middle">
             <thead class="table-secondary text-dark">
-            <tr>
-                <th>Date</th>
-                <th>Utilisateur</th>
-                <th>Essais</th>
-                <th>Points</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Essais</th>
+                    <th>Points</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            {% for s in scores %}
-                <tr>
-                    <form method="POST" class="d-flex gap-2 justify-content-center align-items-center flex-wrap">
-                        <td>
-                            <input type="date" name="date" class="form-control form-control-sm"
-                                   value="{{ s.date }}">
-                        </td>
-                        <td class="align-middle">{{ s.username }}</td>
-                        <td>
-                            <input type="number" name="attempts" class="form-control form-control-sm"
-                                   value="{{ s.attempts }}">
-                        </td>
-                        <td>
-                            <input type="number" name="points" class="form-control form-control-sm"
-                                   value="{{ s.points }}" min="0">
-                        </td>
-                        <td class="d-flex justify-content-center gap-1 flex-wrap">
-                            <input type="hidden" name="index" value="{{ s.index }}">
-                            <button class="btn btn-primary btn-sm btn-icon" name="action" value="edit"
-                                    title="Sauvegarder">
-                                <i class="bi bi-save"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm btn-icon" name="action" value="delete"
-                                    title="Supprimer"
-                                    onclick="return confirm('Supprimer cette ligne ?')">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm btn-icon" title="Copier"
-                                    onclick="copyRow(this)">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                        </td>
-                    </form>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="5">Aucun score</td>
-                </tr>
-            {% endfor %}
+                {% for s in scores %}
+                    <tr>
+                        <!-- Formulaire valide par ligne -->
+                        <form method="POST" class="d-flex gap-2 justify-content-center align-items-center flex-wrap">
+                            <td>
+                                <input type="date" name="date" class="form-control form-control-sm"
+                                       value="{{ s.date }}" required>
+                            </td>
+                            <td class="align-middle">{{ s.username }}</td>
+                            <td>
+                                <input type="number" name="attempts" class="form-control form-control-sm"
+                                       value="{{ s.attempts }}" min="1" required>
+                            </td>
+                            <td>
+                                <input type="number" name="points" class="form-control form-control-sm"
+                                       value="{{ s.points }}" min="0" required>
+                            </td>
+                            <td class="d-flex justify-content-center gap-1 flex-wrap">
+                                <input type="hidden" name="index" value="{{ s.index }}">
+                                <button class="btn btn-primary btn-sm btn-icon" name="action" value="edit"
+                                        title="Sauvegarder">
+                                    <i class="bi bi-save"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm btn-icon" name="action" value="delete"
+                                        title="Supprimer"
+                                        onclick="return confirm('Supprimer cette ligne ?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm btn-icon" title="Copier"
+                                        onclick="copyRow(this)">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </td>
+                        </form>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">Aucun score</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
