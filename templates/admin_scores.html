@@ -135,6 +135,10 @@
                         <!-- Formulaire valide par ligne -->
                         <form method="POST" class="d-flex gap-2 justify-content-center align-items-center flex-wrap">
                             <td>
+                               <input type="hidden" name="id" class="form-control form-control-sm" 
+                                        value="{{ s.id }}"> 
+                            </td>
+                            <td>
                                 <input type="date" name="date" class="form-control form-control-sm"
                                        value="{{ s.date }}" required>
                             </td>
