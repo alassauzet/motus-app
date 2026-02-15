@@ -50,7 +50,7 @@ def manage_scores():
             supabase.table("scores").update({
                 "date": request.form["date"],
                 "attempts": attempts,
-                "points": score_from_attempts(attempts),
+                "points": request.form["points"],
             }).eq("id", score_id).execute()
 
             flash("Score modifié", "success")
