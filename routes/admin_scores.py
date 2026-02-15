@@ -44,7 +44,7 @@ def manage_scores():
 
         # ✏️ Modifier
         elif action == "edit":
-            score_id = request.form["index"]
+            score_id = request.form["id"]
             attempts = int(request.form["attempts"])
 
             supabase.table("scores").update({
