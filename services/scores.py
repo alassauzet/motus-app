@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 import pandas as pd
 from supabase import create_client
@@ -18,21 +19,25 @@ def score_from_attempts(attempts):
     mapping = {1: 60, 2: 50, 3: 40, 4: 30, 5: 20, 6: 10}
     return mapping.get(attempts, 0)
 
-
 def load_scores(year=None, month=None):
     """Charge tous les scores depuis Supabase, optionnellement filtrés par mois"""
     query = supabase.table("scores").select("*")
+
     if year and month:
+        last_day = calendar.monthrange(year, month)[1]
         start = f"{year}-{month:02d}-01"
-        end = f"{year}-{month:02d}-31"
+        end = f"{year}-{month:02d}-{last_day:02d}"
+
         query = query.gte("date", start).lte("date", end)
+
     res = query.execute()
+
     if not res.data:
         return pd.DataFrame(columns=["date", "username", "attempts", "points"])
-    df = pd.DataFrame(res.data)
-    df['date'] = pd.to_datetime(df['date'])
-    return df
 
+    df = pd.DataFrame(res.data)
+    df["date"] = pd.to_datetime(df["date"])
+    return df
 
 def get_player_attempts(username, target_date=None):
     if target_date is None:
